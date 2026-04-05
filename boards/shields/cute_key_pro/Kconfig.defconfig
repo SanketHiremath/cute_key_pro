@@ -1,0 +1,12 @@
+if SHIELD_CUTE_KEY_PRO
+
+config ZMK_KEYBOARD_NAME
+    default "Cute Key Pro"
+
+config ZMK_BLE
+    default y
+
+config ZMK_BATTERY_REPORTING
+    default y
+
+endif
