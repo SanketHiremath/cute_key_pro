@@ -9,7 +9,7 @@
  * Row 1  D6/P0.24 │  D           E           F
  * Row 2  D7/P1.00 │  G           H           BLE pair
  *
- * Diode direction: col2row (cathode toward row wire)
+ * Diode direction: row2col (cathode/negative toward row wire)
  */
 
 / {
@@ -32,18 +32,18 @@
     kscan0: kscan_0 {
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN";
-        diode-direction = "col2row";
+        diode-direction = "row2col";
 
         row-gpios
-            = <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row 0 – D5 */
-            , <&gpio0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row 1 – D6 */
-            , <&gpio1  0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row 2 – D7 */
+            = <&gpio0 22 GPIO_ACTIVE_HIGH>   /* Row 0 – D5 */
+            , <&gpio0 24 GPIO_ACTIVE_HIGH>   /* Row 1 – D6 */
+            , <&gpio1  0 GPIO_ACTIVE_HIGH>   /* Row 2 – D7 */
             ;
 
         col-gpios
-            = <&gpio0  6 GPIO_ACTIVE_HIGH>   /* Col 0 – D1 */
-            , <&gpio0  8 GPIO_ACTIVE_HIGH>   /* Col 1 – D0 */
-            , <&gpio0 15 GPIO_ACTIVE_HIGH>   /* Col 2 – D2 */
+            = <&gpio0  6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 0 – D1 */
+            , <&gpio0  8 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 1 – D0 */
+            , <&gpio0 15 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 2 – D2 */
             ;
     };
 };
