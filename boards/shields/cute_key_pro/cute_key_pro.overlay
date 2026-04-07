@@ -16,7 +16,8 @@
 / {
     chosen {
         zmk,kscan = &kscan0;
-        zmk,matrix_transform = &default_transform;
+        /* zmk,matrix_transform must NOT be set when using zmk,physical-layout with ZMK Studio —
+           the physical layout node carries the transform reference instead. */
         zmk,physical-layout = &physical_layout0;
     };
 
