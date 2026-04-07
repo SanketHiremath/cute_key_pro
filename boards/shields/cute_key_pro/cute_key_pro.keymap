@@ -7,7 +7,7 @@
  *   ┌───┬───┬───┐
  *   │ A │ B │ C │  row 0
  *   ├───┼───┼───┤
- *   │ D │ E │ F │  row 1
+ *   │ D │ E │STU│  row 1  (STU = unlock ZMK Studio editing)
  *   ├───┼───┼───┤
  *   │ G │ H │BT │  row 2  (BT = clear profile → enters pairing mode)
  *   └───┴───┴───┘
@@ -19,9 +19,9 @@
 
         default_layer {
             bindings = <
-                &kp A   &kp B   &kp C
-                &kp D   &kp E   &kp F
-                &kp G   &kp H   &bt BT_CLR
+                &kp A   &kp B          &kp C
+                &kp D   &kp E          &studio_unlock
+                &kp G   &kp H          &bt BT_CLR
             >;
         };
     };
