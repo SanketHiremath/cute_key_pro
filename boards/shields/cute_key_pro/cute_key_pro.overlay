@@ -4,7 +4,7 @@
  * 3×3 matrix wiring on Nice Nano (nRF52840)
  *
  *        Col 0       Col 1       Col 2
- *        D1/P0.06    D0/P0.08    D2/P0.15
+ *        D1/P0.06    D0/P0.08    D2/P0.17
  * Row 0  D5/P0.22 │  A           B           C
  * Row 1  D6/P0.24 │  D           E           F
  * Row 2  D7/P1.00 │  G           H           BLE pair
@@ -43,7 +43,7 @@
         col-gpios
             = <&gpio0  6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 0 – D1 */
             , <&gpio0  8 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 1 – D0 */
-            , <&gpio0 15 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 2 – D2 */
+            , <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col 2 – D2 */
             ;
     };
 };
