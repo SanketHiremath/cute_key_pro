@@ -1,4 +1,5 @@
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi>
 
 /*
  * 3×3 matrix wiring on Nice Nano (nRF52840)
@@ -6,7 +7,7 @@
  *        Col 0       Col 1       Col 2
  *        D1/P0.06    D0/P0.08    D2/P0.17
  * Row 0  D5/P0.22 │  A           B           C
- * Row 1  D6/P0.24 │  D           E           F
+ * Row 1  D6/P0.24 │  D           E           STU
  * Row 2  D7/P1.00 │  G           H           BLE pair
  *
  * Diode direction: row2col (cathode/negative toward row wire)
@@ -16,6 +17,7 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix_transform = &default_transform;
+        zmk,physical-layout = &physical_layout0;
     };
 
     default_transform: keymap_transform_0 {
@@ -27,6 +29,33 @@
             RC(1,0) RC(1,1) RC(1,2)
             RC(2,0) RC(2,1) RC(2,2)
         >;
+    };
+
+    /*
+     * Physical layout for ZMK Studio – positions in centi-keyunits (100 = 1U = 19.05mm)
+     * Format: <&key_physical_attrs w h x y rot rx ry>
+     *
+     *   [A][B][C]
+     *   [D][E][S]
+     *   [G][H][T]
+     */
+    physical_layout0: physical_layout_0 {
+        compatible = "zmk,physical-layout";
+        display-name = "3x3 Macropad";
+        transform = <&default_transform>;
+        kscan = <&kscan0>;
+        keys
+            //                     w    h    x    y   rot  rx  ry
+            = <&key_physical_attrs 100 100    0    0     0   0   0>  /* A */
+            , <&key_physical_attrs 100 100  100    0     0   0   0>  /* B */
+            , <&key_physical_attrs 100 100  200    0     0   0   0>  /* C */
+            , <&key_physical_attrs 100 100    0  100     0   0   0>  /* D */
+            , <&key_physical_attrs 100 100  100  100     0   0   0>  /* E */
+            , <&key_physical_attrs 100 100  200  100     0   0   0>  /* Studio */
+            , <&key_physical_attrs 100 100    0  200     0   0   0>  /* G */
+            , <&key_physical_attrs 100 100  100  200     0   0   0>  /* H */
+            , <&key_physical_attrs 100 100  200  200     0   0   0>  /* BLE pair */
+            ;
     };
 
     kscan0: kscan_0 {
