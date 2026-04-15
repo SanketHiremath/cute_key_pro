@@ -4,79 +4,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repository Is
 
-This is a **ZMK user config repository** for the "Cute Key Pro" keyboard project. It does not contain the full ZMK source — instead, it contains:
-- The board/shield definitions for the CKP hardware (embedded under `.zmk/zmk/`)
-- A `config/west.yml` manifest that pulls ZMK v0.3 from GitHub
-- A `build.yaml` that drives GitHub Actions matrix builds
-- A `boards/shields/` directory for any future custom shields
+A **ZMK user config repository** for the "Cute Key Pro" — a 3×3 macropad shield running on a Nice Nano v2 (nRF52840). This repo does not contain the full ZMK source; it holds only the shield definition, keymap, config, and CI workflow. The ZMK firmware source is pulled at build time via west into `.zmk/` (gitignored).
 
-The actual ZMK firmware source lives under `.zmk/zmk/` (a west workspace clone).
+## Repository Structure
 
-## Keyboard Variants
-
-Three keyboard variants share the same `ckp` hardware platform (nRF52840):
-
-| Board name  | Form factor | Rows × Cols |
-|-------------|-------------|-------------|
-| `bt60_v2`   | 60%         | 5 × 15      |
-| `bt65_v1`   | 65%         | 5 × 16      |
-| `bt75_v1`   | 75%         | 6 × 16      |
-
-Board files live in `.zmk/zmk/app/boards/arm/ckp/`.
+```
+boards/shields/cute_key_pro/   ← Shield definition (overlay, keymap, conf, Kconfig)
+config/west.yml                ← West manifest pinning ZMK v0.3
+build.yaml                     ← GitHub Actions build matrix
+.github/workflows/build.yml   ← CI workflow (delegates to ZMK's reusable workflow)
+zephyr/module.yml              ← Tells Zephyr to treat repo root as a board root
+```
 
 ## Build Commands
 
-Builds are normally triggered by GitHub Actions (see [.github/workflows/build.yml](.github/workflows/build.yml)), which delegates to `zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3`. The matrix is defined in [build.yaml](build.yaml).
+**CI builds** are triggered on push/PR via GitHub Actions, which delegates to `zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3`. The matrix in [build.yaml](build.yaml) builds `nice_nano_v2` + `cute_key_pro` shield with the `studio-rpc-usb-uart` snippet.
 
-To build locally using west (run from the `.zmk/` directory after `west init`/`west update`):
+**Local builds** (from the `.zmk/` directory):
 
 ```bash
-# Initialize west workspace (first time only)
+# First time only
 cd .zmk
 west init -l ../config
 west update
 
-# Build a specific board variant
-west build -s zmk/app -b bt60_v2 -- -DZMK_CONFIG="$(pwd)/../config"
-west build -s zmk/app -b bt65_v1 -- -DZMK_CONFIG="$(pwd)/../config"
-west build -s zmk/app -b bt75_v1 -- -DZMK_CONFIG="$(pwd)/../config"
+# Build
+west build -s zmk/app -b nice_nano_v2 -- \
+  -DSHIELD=cute_key_pro \
+  -DZMK_CONFIG="$(pwd)/../config" \
+  -DSNIPPET=studio-rpc-usb-uart
 ```
 
-Firmware output is `build/zephyr/zmk.uf2` — copy to the keyboard's UF2 bootloader drive to flash.
+Firmware output: `build/zephyr/zmk.uf2` — copy to the Nice Nano's UF2 bootloader drive to flash.
 
-## Adding a New Board/Shield to the Build Matrix
+## Hardware Wiring (3×3 Matrix on Nice Nano v2)
 
-Edit [build.yaml](build.yaml) to add entries under `include:`:
+- **Diode direction:** row2col (cathode toward row wire)
+- **Row pins:** D5/P0.22, D6/P0.24, D7/P1.00
+- **Col pins:** D1/P0.06, D0/P0.08, D2/P0.17
+- **Features enabled:** BLE, battery reporting, ZMK Studio (live keymap editing over USB)
+
+## Keymap
+
+Single-layer keymap in `boards/shields/cute_key_pro/cute_key_pro.keymap`:
+
+```
+┌───┬───┬───┐
+│ A │ B │ C │
+├───┼───┼───┤
+│ D │ E │STU│  ← STU = ZMK Studio unlock
+├───┼───┼───┤
+│ G │ H │BT │  ← BT = BT_CLR (enters pairing mode)
+└───┴───┴───┘
+```
+
+## Adding to the Build Matrix
+
+Edit [build.yaml](build.yaml) under `include:`. Each entry needs `board` and `shield`; optionally add `snippet` and `cmake-args`:
 
 ```yaml
 include:
-  - board: bt60_v2
-  - board: bt65_v1
-  - board: bt75_v1
+  - board: nice_nano_v2
+    shield: cute_key_pro
+    snippet: studio-rpc-usb-uart
 ```
-
-## Hardware Overview
-
-All three variants share `ckp.dtsi` / `ckp-pinctrl.dtsi`:
-- **MCU:** Nordic nRF52840 (BLE 5.0 + USB)
-- **Key matrix:** col2row, 16 columns (GPIO0 + GPIO1), up to 6 rows
-- **Encoders:** 3 × EC11 rotary encoders (GPIO0)
-- **RGB underglow:** 12 × WS2812 LEDs via SPI3 (GPIO0 pin 20)
-- **Backlight:** PWM on GPIO0 pin 17
-- **Battery monitoring:** ADC channel 2, 100k+100k voltage divider
-- **External power control:** GPIO0 pin 13
-- **Firmware format:** UF2 (for nRF52840 UF2 bootloader)
-
-## Keymap Editing
-
-Keymap files follow standard ZMK `.keymap` syntax and live next to the board DTS files in `.zmk/zmk/app/boards/arm/ckp/`:
-
-- `bt60_v2.keymap` — selectable ANSI/ISO/ALL_1U/HHKB layout via `#define`
-- `bt65_v1.keymap`
-- `bt75_v1.keymap`
-
-Layer 0 is the default layer; layer 1 (`raise`) is activated by `MO(1)` and includes media, RGB, backlight, and Bluetooth controls.
 
 ## ZMK Version
 
-Pinned to `v0.3` in [config/west.yml](config/west.yml). To upgrade, update the `revision` field and re-run `west update`.
+Pinned to `v0.3` in [config/west.yml](config/west.yml). To upgrade, change the `revision` field and re-run `west update`.
